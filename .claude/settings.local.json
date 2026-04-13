@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c//**)",
+      "Read(//c/Program Files/Microsoft Visual Studio/**)",
+      "Bash(cmd.exe /c \"where cl\")",
+      "Bash(cmd.exe /c \"where g++\")",
+      "Bash(cmd.exe /c \"\\\\\"C:\\\\Program Files\\\\Microsoft Visual Studio\\\\2022\\\\Community\\\\VC\\\\Auxiliary\\\\Build\\\\vcvars64.bat\\\\\" >nul 2>&1 && cl /std:c++17 /O2 /EHsc /W4 main.cpp /Fe:trading.exe\")",
+      "Bash(ls -la \"C:/Users/hanyi/claude/cpp_basic/\"*.exe)",
+      "Bash(ls -la \"C:/Users/hanyi/claude/cpp_basic/\"*.obj)",
+      "Bash(cmd.exe /c \"call \\\\\"C:\\\\Program Files\\\\Microsoft Visual Studio\\\\2022\\\\Community\\\\VC\\\\Auxiliary\\\\Build\\\\vcvars64.bat\\\\\" && cl /std:c++17 /O2 /EHsc /W4 main.cpp /Fe:trading.exe\")",
+      "Bash(cmd.exe /c \"C:\\\\Users\\\\hanyi\\\\claude\\\\cpp_basic\\\\build.bat\")",
+      "Read(//c/Users/hanyi/AppData/Local/Programs/**)",
+      "Read(//c/Program Files/**)",
+      "Bash(\"C:/Program Files \\(x86\\)/Intel/oneAPI/compiler/2025.3/bin/compiler/clang++.exe\" --version)",
+      "Bash(g++ -std=c++17 -O2 -Wall -Wextra -o trading.exe main.cpp)",
+      "Bash(./trading.exe)",
+      "Bash(where g++)",
+      "Read(//mingw64/bin/**)",
+      "Read(//c/msys64/mingw64/bin/**)"
+    ]
+  }
+}

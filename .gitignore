@@ -1,0 +1,50 @@
+# C++ build artifacts
+*.exe
+*.obj
+*.o
+*.pdb
+*.ilk
+*.exp
+*.lib
+*.dll
+*.so
+*.a
+*.out
+*.asm
+
+# MSVC
+Debug/
+Release/
+x64/
+x86/
+*.vcxproj.user
+*.suo
+*.sdf
+*.opensdf
+*.opendb
+ipch/
+
+# CMake
+build/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# C# / .NET
+bin/
+obj/
+*.user
+*.suo
+*.cache
+*.DotSettings
+project.lock.json
+*.nuget.props
+*.nuget.targets
+
+# IDE
+.vs/
+.vscode/
+.idea/
+*.swp
+*~
