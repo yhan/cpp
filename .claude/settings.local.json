@@ -17,7 +17,8 @@
       "Bash(./trading.exe)",
       "Bash(where g++)",
       "Read(//mingw64/bin/**)",
-      "Read(//c/msys64/mingw64/bin/**)"
+      "Read(//c/msys64/mingw64/bin/**)",
+      "Bash(\"/c/Program Files/dotnet/dotnet\" build -c Release)"
     ]
   }
 }
