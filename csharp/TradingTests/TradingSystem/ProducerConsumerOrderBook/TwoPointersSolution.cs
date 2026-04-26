@@ -12,8 +12,24 @@ using TradingSystem.ProducerConsumerOrderBook;
 /// two publishes during one consumer read. For a fast pricing loop reading
 /// a 10-level book, this is comfortably satisfied. If you need formal
 /// guarantees against this hazard, extend to triple-buffering.
+///
+/// Limitation :
+/// T0:  State: _published = 1, _readerOn = 0
+/// (Reader is reading old buffer 0.Buffer 1 is the latest published.)
+/// 
+/// T1: Producer starts writing into buffer 1.This means buffer 1's bytes are now in flux — the producer is
+///     overwriting them with new(qty, price) values, partially.
+///  T2: Reader finishes reading buffer 0.Sets _readerOn = -1.
+///  T3: Reader IMMEDIATELY starts a new read.
+///      idx = Volatile.Read(_published) = 1. ← still 1, producer hasn't finished
+///      Volatile.Write(_readerOn, 1).Reader starts copying buffer 1.
+///  T4: But buffer 1 is being WRITTEN by the producer right now!
+///      Reader sees half - old bytes, half - new bytes.Torn snapshot. ✗
+/// 
+/// T5:
+/// Producer finishes writing buffer 1._published is still 1(no change).But the damage is done — the reader already copied corrupted data.
 /// </summary>
-public sealed class DoubleBufferedBook
+public sealed class DoubleBufferedBook2Slots
 {
     // Two buffers held in pinned heap memory so addresses are stable
     // and cache-aligned access patterns are preserved.
@@ -23,7 +39,7 @@ public sealed class DoubleBufferedBook
     // Producer-only modifies via PaddedAtomicIndex; consumer reads atomically.
     private PaddedIndex _currentIndex;
 
-    public DoubleBufferedBook()
+    public DoubleBufferedBook2Slots()
     {
         // Pinned object heap: GC will not relocate this array, preserving
         // cache alignment and any address assumptions across collections.
