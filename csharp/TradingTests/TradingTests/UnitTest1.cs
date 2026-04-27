@@ -39,4 +39,17 @@ public class Tests
         Assert.That(compareExchange, Is.EqualTo(0));
         Assert.That(a, Is.EqualTo(0));
     }
+
+    [Test]
+    public void copyToSpan()
+    {
+        Span<int> dest = new int[1];
+        WriteToDest(dest);
+        Assert.That(dest[0], Is.EqualTo(42));
+    }
+
+    private void WriteToDest(Span<int> dest)
+    {
+        dest[0] = 42;
+    }
 }

@@ -49,7 +49,7 @@ public sealed class TripleBufferedBook
     {
         _buffers = GC.AllocateArray<BookBuffer>(3, pinned: true);
         _published.Value = 0;
-        _readerOn.Value  = IdleReader;
+        _readerOn.Value = IdleReader;
     }
 
     /// <summary>
@@ -67,7 +67,7 @@ public sealed class TripleBufferedBook
         // its own last value is fine. We need an acquire load on _readerOn
         // because the reader writes it.
         int published = _published.Value;
-        int readerOn  = Volatile.Read(ref _readerOn.Value);
+        int readerOn = Volatile.Read(ref _readerOn.Value);
 
         // Pick the buffer that is neither published nor reader-claimed.
         // With 3 buffers and at most 2 forbidden indices, exactly one (or
@@ -88,7 +88,7 @@ public sealed class TripleBufferedBook
     /// Never retries. Reader can take arbitrary time without blocking the producer.
     /// </summary>
     public void Read(Span<Level> bidsDest, Span<Level> asksDest,
-                     out byte bidDepth, out byte askDepth)
+        out byte bidDepth, out byte askDepth)
     {
         if (bidsDest.Length < BookBuffer.MaxLevels)
             throw new ArgumentException("Bid dest too small");
@@ -150,9 +150,10 @@ public sealed class TripleBufferedBook
         // Combine the two cases:
 
         if (readerOn == IdleReader || readerOn == published)
-            return (published + 1) % 3;     // any non-published slot
+            // avoid Modulo which is slow, return (published + 1) % 3;     // any non-published slot
+            return published == 2 ? 0 : published + 1; // any non-published slot
 
-        return 3 - published - readerOn;    // the third slot
+        return 3 - published - readerOn; // the third slot
     }
 
     /// <summary>
