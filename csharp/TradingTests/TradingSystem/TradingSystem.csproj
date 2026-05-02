@@ -6,4 +6,7 @@
     <Optimize>true</Optimize>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="Optiver\" />
+  </ItemGroup>
 </Project>

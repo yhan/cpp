@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradingSystem", "TradingSys
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmark", "Benchmark\Benchmark.csproj", "{5E421799-E701-44FE-8D71-8ED00C9B482E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpiringOrderBookConsoleApp", "ExpiringOrderBookConsoleApp\ExpiringOrderBookConsoleApp.csproj", "{BBC76C8E-56DD-4218-AEE2-DF68F36B7F01}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{5E421799-E701-44FE-8D71-8ED00C9B482E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5E421799-E701-44FE-8D71-8ED00C9B482E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5E421799-E701-44FE-8D71-8ED00C9B482E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BBC76C8E-56DD-4218-AEE2-DF68F36B7F01}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BBC76C8E-56DD-4218-AEE2-DF68F36B7F01}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BBC76C8E-56DD-4218-AEE2-DF68F36B7F01}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BBC76C8E-56DD-4218-AEE2-DF68F36B7F01}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
