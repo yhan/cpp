@@ -147,8 +147,10 @@ public class Program
         Console.Write(sb);
     }
 
-    private static void ManageExpiry(PriorityQueue<int, long> pq, Event evt, Dictionary<int, Event> eventsMap, Fenwick bidQtyFen, Fenwick bidNotionalFen, Fenwick askQtyFen, Fenwick askNotionalFen
-        , Dictionary<long, int> bidPxToIdx,
+    private static void ManageExpiry(PriorityQueue<int, long> pq, Event evt, Dictionary<int, Event> eventsMap,
+        Fenwick bidQtyFen, Fenwick bidNotionalFen, 
+        Fenwick askQtyFen, Fenwick askNotionalFen, 
+        Dictionary<long, int> bidPxToIdx,
         Dictionary<long, int> askPxToIdx)
     {
         long now = evt.Timestamp;
