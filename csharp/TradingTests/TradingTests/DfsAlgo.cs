@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 
 [TestFixture]
-public class DfsAlgoTests
+public class GraphDfsBfsAlgoTests
 {
     [Test]
     public void Dfs_SingleNode_ReturnsOnlyStart()
@@ -18,7 +18,7 @@ public class DfsAlgoTests
             [1] = new()
         };
 
-        var result = DfsAlgo.Traverse(graph, 1);
+        var result = GraphDfsBfsAlgo.Traverse(graph, 1);
 
         CollectionAssert.AreEqual(new[] { 1 }, result);
     }
@@ -34,7 +34,7 @@ public class DfsAlgoTests
             [4] = new()
         };
 
-        var result = DfsAlgo.Traverse(graph, 1);
+        var result = GraphDfsBfsAlgo.Traverse(graph, 1);
 
         CollectionAssert.AreEquivalent(new[] { 1, 2, 3, 4 }, result);
     }
@@ -52,7 +52,7 @@ public class DfsAlgoTests
             [6] = new()
         };
 
-        var result = DfsAlgo.Traverse(graph, 1);
+        var result = GraphDfsBfsAlgo.Traverse(graph, 1);
         CollectionAssert.AreEquivalent(new[] { 1, 2, 4, 5, 3, 6 }, result);
     }
 
@@ -66,9 +66,9 @@ public class DfsAlgoTests
             [3] = new() { 1 }
         };
 
-        var result = DfsAlgo.Traverse(graph, 1);
+        var result = GraphDfsBfsAlgo.Traverse(graph, 1);
 
-        CollectionAssert.AreEqual(new[] { 1, 2, 3 }, result);
+        CollectionAssert.AreEquivalent(new[] { 1, 2, 3 }, result);
     }
 
     [Test]
@@ -82,7 +82,7 @@ public class DfsAlgoTests
             [4] = new()
         };
 
-        var result = DfsAlgo.Traverse(graph, 1);
+        var result = GraphDfsBfsAlgo.Traverse(graph, 1);
 
         CollectionAssert.AreEquivalent(new[] { 1, 2 }, result);
     }
@@ -96,19 +96,19 @@ public class DfsAlgoTests
             [2] = new()
         };
 
-        Assert.Throws<ArgumentException>(() => DfsAlgo.Traverse(graph, 99));
+        Assert.Throws<ArgumentException>(() => GraphDfsBfsAlgo.Traverse(graph, 99));
     }
 
     [Test]
     public void Dfs_NullGraph_ThrowsArgumentNullException()
     {
-        Assert.Throws<ArgumentNullException>(() => DfsAlgo.Traverse(null!, 1));
+        Assert.Throws<ArgumentNullException>(() => GraphDfsBfsAlgo.Traverse(null!, 1));
     }
 }
 
-public static class DfsAlgo
+public static class GraphDfsBfsAlgo
 {
-    public static List<int> Traverse(Dictionary<int, List<int>> graph, int start)
+    public static List<int> Traverse2(Dictionary<int, List<int>> graph, int start)
     {
         if (graph == null) throw new ArgumentNullException("graph is empty");
         Stack<int> stack = new Stack<int>();
@@ -136,6 +136,69 @@ public static class DfsAlgo
         Console.WriteLine(string.Join(", ", traverse));
         return traverse;
     }
+// BFS
+    public static List<int> Traverse(Dictionary<int, List<int>> graph, int start)
+    {
+        if (graph == null) throw new ArgumentNullException("graph is empty");
+        Queue<int> q = new Queue<int>();
+        HashSet<int> visited = new HashSet<int>();
+        if (graph.ContainsKey(start))
+            q.Enqueue(start);
+        else throw new ArgumentException($"node {start} does not exist");
+        while (q.TryDequeue(out int pop))
+        {
+            visited.Add(pop);
+            if (graph.TryGetValue(pop, out var neighbors))
+            {
+                if (neighbors?.Count > 0)
+                    foreach (var neighbor in neighbors)
+                    {
+                        if (!visited.Contains(neighbor))
+                            q.Enqueue(neighbor);
+                    }
+            }
+            else throw new ArgumentException($"node {pop} does not exist");
+        }
+
+        var traverse = visited.ToList();
+        Console.WriteLine(string.Join(", ", traverse));
+        return traverse;
+    }
+
+
+    public static List<int> TraverseDeepFirst(Dictionary<int, List<int>> graph, int start)
+    {
+        if (graph == null) throw new ArgumentNullException("graph is empty");
+        Stack<int> stack = new Stack<int>();
+        Stack<int> deepFirst = new Stack<int>();
+        HashSet<int> visited = new HashSet<int>();
+        if (graph.ContainsKey(start))
+            stack.Push(start);
+        else throw new ArgumentException($"node {start} does not exist");
+        while (stack.Count > 0)
+        {
+            var pop = stack.Pop();
+            visited.Add(pop);
+            deepFirst.Push(pop);
+            if (graph.TryGetValue(pop, out var neighbors))
+            {
+                if (neighbors?.Count > 0)
+                    foreach (var neighbor in neighbors)
+                    {
+                        if (!visited.Contains(neighbor))
+                            stack.Push(neighbor);
+                    }
+            }
+            else throw new ArgumentException($"node {pop} does not exist");
+        }
+
+        var traverse = new List<int>();
+        while(deepFirst.TryPop(out int v))
+            traverse.Add(v);
+        Console.WriteLine(string.Join(", ", traverse));
+        return traverse;
+    }
+
 
     private static void TraverseStack(Stack<int> stack, Dictionary<int, List<int>> graph, int start, HashSet<int> visited)
     {
