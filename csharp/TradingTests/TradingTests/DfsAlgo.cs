@@ -137,7 +137,7 @@ public static class GraphDfsBfsAlgo
         return traverse;
     }
 // BFS
-    public static List<int> Traverse(Dictionary<int, List<int>> graph, int start)
+    public static List<int> TraverseBFS(Dictionary<int, List<int>> graph, int start)
     {
         if (graph == null) throw new ArgumentNullException("graph is empty");
         Queue<int> q = new Queue<int>();
@@ -219,7 +219,7 @@ public static class GraphDfsBfsAlgo
         visited.Add(start);
     }
 
-    public static List<int> TraverseRecursive(Dictionary<int, List<int>> graph, int start)
+    public static List<int> Traverse(Dictionary<int, List<int>> graph, int start)
     {
         var path = new HashSet<int>();
         Traverse(path, graph, start);
