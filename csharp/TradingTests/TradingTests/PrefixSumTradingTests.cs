@@ -1,4 +1,6 @@
-﻿namespace TradingTests;
+﻿using System;
+
+namespace TradingTests;
 
 /**
  * Max profit window
@@ -69,6 +71,39 @@ Part B: O(n) time required — no nested loops
  */
 public class PrefixSumTradingTests
 {
+/*
+ * TODO : inside a window, keep the smallest negative number Neg
+ * Cum = part A cum - (smallest neg number )
+ */
+    void PartB()
+    {
+        
+    }
+    void BetterImplPartA(int k, int minPnl, int[] pnls)
+    {
+        int n = pnls.Length;
+        // Sliding window sum. windowSum holds the sum of pnls[i-k+1 .. i]
+        // once i >= k-1. Before that, it's a partial prefix and is ignored.
+        //
+        // Window sum can range from k * (-1e4) to k * (1e4).
+        // With n = k = 1e5, that's +/- 1e9, which fits in int (max ~2.1e9).
+        // Using long anyway for safety against constraint changes.
+        long windowSum = 0L;
+        int resultCnt = 0;
+
+        for (int i = 0; i < n; i++)
+        {
+            windowSum += pnls[i];
+
+            if (i >= k)
+                windowSum -= pnls[i - k];
+
+            if (i >= k - 1 && windowSum > minPnl)
+                resultCnt++;
+        }
+
+        Console.WriteLine(resultCnt);
+    }
     [Test]
     public void test()
     {
