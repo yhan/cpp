@@ -1,4 +1,7 @@
-﻿using TradingSystem.Fast;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+using TradingSystem.Fast;
 
 namespace TradingTests;
 
@@ -51,5 +54,21 @@ public class Tests
     private void WriteToDest(Span<int> dest)
     {
         dest[0] = 42;
+    }
+
+    [Test]
+    public void MaxHeap()
+    {
+        var pq = new PriorityQueue<int, int>(Comparer<int>.Create((a, b) => b.CompareTo(a)));
+        pq = new PriorityQueue<int, int>(new DescendantComparer());
+        pq = new PriorityQueue<int, int>();
+    }
+}
+
+public class DescendantComparer : IComparer<int>
+{
+    public int Compare(int x, int y)
+    {
+        return y.CompareTo(x);
     }
 }

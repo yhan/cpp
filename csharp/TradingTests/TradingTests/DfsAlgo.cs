@@ -1,4 +1,5 @@
-﻿using NUnit.Framework.Internal.Commands;
+﻿using System.Linq;
+using NUnit.Framework.Internal.Commands;
 using NUnit.Framework.Legacy;
 
 namespace TradingTests;

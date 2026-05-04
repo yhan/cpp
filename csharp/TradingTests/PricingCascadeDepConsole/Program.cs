@@ -46,6 +46,9 @@ Edge cases to watch
 • A changed component with no dependents still appears in the output.
  */
 
+using System;
+using System.Collections.Generic;
+
 class Program
 {
     static void Main(string[] args)
