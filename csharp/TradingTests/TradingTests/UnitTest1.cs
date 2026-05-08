@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using TradingSystem.Fast;
 
@@ -62,6 +63,47 @@ public class Tests
         var pq = new PriorityQueue<int, int>(Comparer<int>.Create((a, b) => b.CompareTo(a)));
         pq = new PriorityQueue<int, int>(new DescendantComparer());
         pq = new PriorityQueue<int, int>();
+    }
+
+    [Test]
+    public void stringSortOrdinal_vs_cultureInvariant()
+    {
+        string[] ids = { "Z", "a", "ä", "B" };
+
+// Ordinal: by UTF-16 codepoint
+// B (0x42), Z (0x5A), a (0x61), ä (0xE4)
+        Console.WriteLine(string.Join(", ", ids.OrderBy(x => x, StringComparer.Ordinal)));// B, Z, a, ä
+
+// Culture (en-US): case-insensitive grouping, ä near a
+        Console.WriteLine(string.Join(", ", ids.OrderBy(x => x)));
+       // a, ä, B, Z   (typical en-US)
+
+// Culture (sv-SE): ä after z
+        ids.OrderBy(x => x); // a, B, Z, ä   (on a Swedish locale machine)
+    }
+
+    [Test]
+    public void compareCultureInvariant()
+    {
+        string a = "a";
+        string aUmlaut = "ä"; // U+00E4
+
+        // Equality under different comparers
+        Console.WriteLine($"Ordinal:           {StringComparer.Ordinal.Equals(a, aUmlaut)}");
+        Console.WriteLine($"InvariantCulture:  {StringComparer.InvariantCulture.Equals(a, aUmlaut)}");
+        Console.WriteLine($"InvariantCultureIgnoreCase: {StringComparer.InvariantCultureIgnoreCase.Equals(a, aUmlaut)}");
+
+        // Compare results (0 = equal, <0 = first smaller, >0 = first larger)
+        Console.WriteLine($"Ordinal compare:           {StringComparer.Ordinal.Compare(a, aUmlaut)}");
+        Console.WriteLine($"InvariantCulture compare:  {StringComparer.InvariantCulture.Compare(a, aUmlaut)}");
+
+        // Sort behavior
+        string[] arr = { "z", "ä", "a", "b" };
+        Array.Sort(arr, StringComparer.InvariantCulture);
+        Console.WriteLine($"Invariant sort: {string.Join(",", arr)}");
+
+        Array.Sort(arr, StringComparer.Ordinal);
+        Console.WriteLine($"Ordinal sort:   {string.Join(",", arr)}");
     }
 }
 

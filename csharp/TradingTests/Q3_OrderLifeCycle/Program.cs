@@ -22,13 +22,13 @@ class Solution
         int invalid = 0; // max 2e5
         Dictionary<string, int> qties = new();// order id => remaining qty, keep only live orders
         Dictionary<string, Status> all = new(); // all orders status
-        
-        Status status;
+
         for(int i =0; i<n;i++)
         {
             string evtName =fs.Next();
             string orderId = fs.Next();
-            
+
+            Status status;
             switch (evtName)
             {
                 case "NEW":
@@ -110,7 +110,7 @@ class Solution
         Console.WriteLine(qties.Count);
         // live orders sorted by order id: orderid remainingqty
         StringBuilder sb = new();
-        foreach(var kv in qties.OrderBy(x => x.Key)) 
+        foreach(var kv in qties.OrderBy(x => x.Key, StringComparer.Ordinal)) // can be non ASCII
         {
             sb.AppendLine($"{kv.Key} {kv.Value}");
         }
