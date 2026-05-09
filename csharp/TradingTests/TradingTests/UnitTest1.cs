@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using TradingSystem.Fast;
 
@@ -22,6 +23,17 @@ public class Tests
         var fastDivider = new FastDivider(7);
         int mod = fastDivider.Modulo(22);
         Assert.That(mod, Is.EqualTo(22 % 7));
+
+        StringBuilder sb = new StringBuilder();
+        sb.Append(-1);
+    }
+
+    [Test]
+    public void reversedPQ()
+    {
+        // a priority queue priority is negative // OR sorted desc
+        var pq = new PriorityQueue<string, long>();
+        string ele = pq.EnqueueDequeue("", 0);
     }
 
     [Test]
@@ -110,6 +122,17 @@ public class Tests
 public class DescendantComparer : IComparer<int>
 {
     public int Compare(int x, int y)
+    {
+        return y.CompareTo(x);
+    }
+}
+
+
+
+
+public class LongDescendantComparer : IComparer<long>
+{
+    public int Compare(long x, long y)
     {
         return y.CompareTo(x);
     }

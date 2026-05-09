@@ -259,19 +259,7 @@ public class Fenwick
 
     private readonly int highestPow2; // highestPow2 is the largest power of 2 that is ≤ n
 
-/*
- * What -i is in two's complement
-In two's complement (how all modern CPUs represent signed integers), -i is computed as: flip all bits of i, then add 1.
-For i = 3 in 8-bit binary (just for illustration):
- i =  3 :  0000 0011
-~i    :  1111 1100      ← flip all bits
-~i+1  :  1111 1101      ← add 1, this is -3
-So -3 = 1111 1101 in two's complement.
-Now AND them together
- i =  3 :  0000 0011
--i = -3 :  1111 1101
- i & -i :  0000 0001    ← only bit 0 survives
- */
+    
     public void Update(int index, long delta)
     {
         for (int i = index; i <= n; i += i & -i)
