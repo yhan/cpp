@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using NFluent;
+using NUnit.Framework.Constraints;
 using TradingSystem.Fast;
 
 namespace TradingTests;
@@ -116,6 +118,144 @@ public class Tests
 
         Array.Sort(arr, StringComparer.Ordinal);
         Console.WriteLine($"Ordinal sort:   {string.Join(",", arr)}");
+    }
+
+    /// <summary>
+    /// he index of the specified value in the specified array,
+    /// if value is found; otherwise, a negative number.
+    /// If value is not found and value is less than one or more elements in array,
+    /// the negative number returned is the bitwise complement of the index of the first element
+    /// that is larger than value.
+    ///
+    /// If value is not found and value is greater than all elements in array,
+    /// the negative number returned is the bitwise complement of (the index of the last element plus 1).
+    /// </summary>
+    [Test]
+    public void longArray()
+    {
+        long[] qties = [500, 500, 300, 200, 100, 100];
+
+
+        int first = Array.BinarySearch(qties, 0, qties.Length, 600, new LongDescendantComparer());
+        Console.WriteLine("600 >> " + first); //-1
+        Console.WriteLine(~first); // 0  first element which is < target
+
+        
+        first = Array.BinarySearch(qties, 0, qties.Length, 500, new LongDescendantComparer());
+        Console.WriteLine("500 >> " + first);  // 0
+
+        first = Array.BinarySearch(qties, 0, qties.Length, 300, new LongDescendantComparer());
+        Console.WriteLine("300 >> "  + first);
+        
+        first = Array.BinarySearch(qties, 0, qties.Length, 150, new LongDescendantComparer());
+        Console.WriteLine("150 >> " +  ~first); // 4  first element which is < target TODO should do -1 to find the last > target
+
+        first = Array.BinarySearch(qties, 0, qties.Length, 50, new LongDescendantComparer());
+        Console.WriteLine("50 >> " + ~first); //-
+        
+        Array.Reverse(qties);
+    }
+
+    [Test]
+    public void longArray2()
+    {
+        long[] qties = [100,200,300,300,500,500];
+        Array.Sort(qties);
+
+
+        int first = Array.BinarySearch(qties, 0, qties.Length, 600);
+        Console.WriteLine("600 >> " + first); //-5
+        Console.WriteLine(~first); // 6 == length  bigger than everything 
+        
+        
+        first = Array.BinarySearch(qties, 0, qties.Length, 500);
+        Console.WriteLine("500 >> " + first); // 4 til 4
+        Console.WriteLine(~first);
+
+        first = Array.BinarySearch(qties, 0, qties.Length, 300); 
+        Console.WriteLine("300 >> " +  first); // 2 til 2 
+
+        first = Array.BinarySearch(qties, 0, qties.Length, 150);
+        Console.WriteLine("150 >> " + first); // -2
+        Console.WriteLine("150 >> " + ~first); // 1 // first element is lager than target 
+
+        
+        first = Array.BinarySearch(qties, 0, qties.Length, 100);
+        Console.WriteLine("100 >> " + first); //0 til 0
+        
+        
+        first = Array.BinarySearch(qties, 0, qties.Length, 50);
+        Console.WriteLine("50 >> " + first); //-1
+        Console.WriteLine(~first); // 0 // first index which is larger than target 
+    }
+
+    [Test]
+    public void testLowBound()
+    {
+        int[] arr = [10,20,30];
+        var lowBound = LowBound(arr, 5);
+        Check.That(lowBound).IsEqualTo(0);
+
+        lowBound = LowBound(arr, 15);
+        Check.That(lowBound).IsEqualTo(1);
+
+        lowBound = LowBound(arr, 20);
+        Check.That(lowBound).IsEqualTo(1);
+
+
+        lowBound = LowBound(arr, 30);
+        Check.That(lowBound).IsEqualTo(2);
+
+        lowBound = LowBound(arr, 31);
+        Check.That(lowBound).IsEqualTo(arr.Length);
+    }
+
+    [Test]
+    public void testHiBound()
+    {
+        int[] arr = [10, 20, 30];
+        var lowBound = HighBound(arr, 5);
+        Check.That(lowBound).IsEqualTo(-1); // first index -1
+
+        lowBound = HighBound(arr, 10);
+        Check.That(lowBound).IsEqualTo(0);
+
+
+        lowBound = HighBound(arr, 15);
+        Check.That(lowBound).IsEqualTo(0);
+
+        lowBound = HighBound(arr, 31);
+        Check.That(lowBound).IsEqualTo(arr.Length - 1);
+
+    }
+    
+    public int LowBound(int[] arr, int lowbound) // look for index value >= lowbound
+    {
+        var test = Array.BinarySearch(arr, lowbound);
+        if (test >= 0) return test;
+        return ~test;
+    }
+
+    public int HighBound(int[] arr, int hibound) // look for index value <= hibound
+    {
+        var test = Array.BinarySearch(arr, hibound);
+        if (test >= 0) return test;
+        return ~test - 1;
+    }
+
+    [Test]
+    public void draft()
+    {
+        int n = 100;
+        int tsindex = 90;
+        // Parse into oversized buffer first
+        int[] tmp = new int[n + 1];
+// ... fill tmp[1..tsindex] ...
+
+// Then resize to fit
+        int[] times = new int[tsindex + 1]; // 1-indexed, exactly fits
+        Array.Copy(tmp, times, tsindex + 1);
+
     }
 }
 
