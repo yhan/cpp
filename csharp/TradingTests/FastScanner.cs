@@ -66,6 +66,7 @@ class FastScanner
         return true;
     }
 
+    public decimal NextDecimal() => decimal.Parse(Next(), CultureInfo.InvariantCulture);
     private int Read()
     {
         if (eof) return -1;

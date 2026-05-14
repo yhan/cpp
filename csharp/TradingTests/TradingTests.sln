@@ -8,7 +8,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmark", "Benchmark\Benc
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Optiver", "Optiver", "{2B21AC70-09F9-4CF4-A3FB-153B61933333}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PricingCascadeDepConsole", "PricingCascadeDepConsole\PricingCascadeDepConsole.csproj", "{A8B6AF49-0AA5-4D10-9DAF-DFD3BE039AC5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Q4_PricingCascadeDepConsole", "Q4_PricingCascadeDepConsole\Q4_PricingCascadeDepConsole.csproj", "{A8B6AF49-0AA5-4D10-9DAF-DFD3BE039AC5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ForexDetectArbitrageOpportunityConsole", "ForexDetectArbitrageOpportunityConsole\ForexDetectArbitrageOpportunityConsole.csproj", "{F9AED867-0BA2-4F67-83E7-6BF51113AAAE}"
 EndProject
@@ -18,9 +18,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Q5_ExpiringOrderBook", "Q5_
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blank", "Blank\Blank.csproj", "{9CD2EA97-AD6F-474A-BAEA-F877C50C2CC6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StaleQuoteDetector", "StaleQuoteDetector\StaleQuoteDetector.csproj", "{0DD4C888-8474-4149-95ED-C8E46CE11F98}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Q6_StaleQuoteDetector", "Q6_StaleQuoteDetector\Q6_StaleQuoteDetector.csproj", "{0DD4C888-8474-4149-95ED-C8E46CE11F98}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Q7_VWAP_Reconstruction_TimeWindow_MinNotional", "Q7_VWAP_Reconstruction_TimeWindow_MinNotional\Q7_VWAP_Reconstruction_TimeWindow_MinNotional.csproj", "{72AA06EE-63E8-45F0-B311-C5BCD34E1627}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Q10_BestExec", "Q10_BestExec\Q10_BestExec.csproj", "{2A8AA513-8965-4F38-9A43-52FD47BD0665}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -68,6 +70,10 @@ Global
 		{72AA06EE-63E8-45F0-B311-C5BCD34E1627}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{72AA06EE-63E8-45F0-B311-C5BCD34E1627}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{72AA06EE-63E8-45F0-B311-C5BCD34E1627}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A8AA513-8965-4F38-9A43-52FD47BD0665}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A8AA513-8965-4F38-9A43-52FD47BD0665}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A8AA513-8965-4F38-9A43-52FD47BD0665}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A8AA513-8965-4F38-9A43-52FD47BD0665}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{A8B6AF49-0AA5-4D10-9DAF-DFD3BE039AC5} = {2B21AC70-09F9-4CF4-A3FB-153B61933333}
@@ -77,5 +83,6 @@ Global
 		{9CD2EA97-AD6F-474A-BAEA-F877C50C2CC6} = {2B21AC70-09F9-4CF4-A3FB-153B61933333}
 		{0DD4C888-8474-4149-95ED-C8E46CE11F98} = {2B21AC70-09F9-4CF4-A3FB-153B61933333}
 		{72AA06EE-63E8-45F0-B311-C5BCD34E1627} = {2B21AC70-09F9-4CF4-A3FB-153B61933333}
+		{2A8AA513-8965-4F38-9A43-52FD47BD0665} = {2B21AC70-09F9-4CF4-A3FB-153B61933333}
 	EndGlobalSection
 EndGlobal

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -256,6 +257,44 @@ public class Tests
         int[] times = new int[tsindex + 1]; // 1-indexed, exactly fits
         Array.Copy(tmp, times, tsindex + 1);
 
+    }
+
+    /// <summary>
+    /// C# type/keyword	Approximate range	Size
+///    float ±1.5 x 10−45 to ±3.4 x 1038 4 bytes
+///    double ±5.0 × 10−324 to ±1.7 × 10308 8 bytes
+///    decimal ±1.0 x 10-28 to ±7.9228 x 1028 16 bytes
+///
+    /// </summary>
+    [Test]
+    public void decimalTest()
+    {
+        static double? BestPrice(string sym, Dictionary<string, Dictionary<int, (double, double)>> book, string side)
+        {
+            double? best = null;
+            if (book.TryGetValue(sym, out var venuebook) == false)
+            {
+                return null;
+            }
+
+            venuebook.Values.Min(x => x.Item1);
+            switch (side)
+            {
+                case "BUY":
+                {
+
+                }
+                    break;
+
+                case "SELL":
+                {
+
+                }
+                    break;
+            }
+
+            return best;
+        }
     }
 }
 
