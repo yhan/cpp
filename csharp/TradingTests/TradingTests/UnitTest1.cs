@@ -269,32 +269,13 @@ public class Tests
     [Test]
     public void decimalTest()
     {
-        static double? BestPrice(string sym, Dictionary<string, Dictionary<int, (double, double)>> book, string side)
-        {
-            double? best = null;
-            if (book.TryGetValue(sym, out var venuebook) == false)
-            {
-                return null;
-            }
+        SortedSet<long> prices = new();
+        prices.Add(100);
+        prices.Add(105);
+        prices.Add(110);
 
-            venuebook.Values.Min(x => x.Item1);
-            switch (side)
-            {
-                case "BUY":
-                {
-
-                }
-                    break;
-
-                case "SELL":
-                {
-
-                }
-                    break;
-            }
-
-            return best;
-        }
+// Successor: smallest key strictly > 105
+        SortedSet<long> successor = prices.GetViewBetween(106, long.MaxValue);
     }
 }
 
