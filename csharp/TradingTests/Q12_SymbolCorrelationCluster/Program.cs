@@ -29,7 +29,7 @@ LINK between two already-linked symbols — no-op, doesn't count as invalid
 QUERY on a symbol that has never been seen — NO
 LARGEST before any LINK — 0 Hint: Union-Find with path compression and union by rank/size. Track the max cluster size as you union — LARGEST is then O(1). Classic application; nearly O(N) total with α(N) inverse-Ackermann.
 */
-class Solution // DQU disjoint set union (Union-find )
+class Solution // DSU disjoint set union (Union-find )
 {
     public static void Main(string[] args)
     {

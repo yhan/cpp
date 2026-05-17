@@ -1,0 +1,220 @@
+﻿using System.CodeDom.Compiler;
+using System.Collections.Generic;
+using System.Collections;
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.Serialization;
+using System.Text.RegularExpressions;
+using System.Text;
+using System;
+
+
+/*
+
+Q15 — Connectivity Across Venues with Failures
+Difficulty: Medium-hard | 55-65 min
+ *ADD t u v
+ * FAIL t  u v
+ * RESTORE t  u v
+ * REACH t a b   YES if a b are connected, otherwise NO 
+ * 
+ */
+
+readonly struct Event
+{
+    public readonly string Name;
+    public readonly  long Time;
+    public readonly int U;
+    public readonly int V;
+    public Event(string name, long ts, int u , int v)
+    { 
+        Name =  name; Time=ts; U=u; V=v;        
+    }
+}
+
+/*
+bug fix: 
+ u v is indiretional   OK
+ dsu size is wrong  OK
+ dsu internal impl error Union    OK
+ query mixed in til qpos should be ignored for state change   OK
+ a, b => by default root(a) is a, a never seen => should return NO not yes     OK 
+ 
+ max= int.minvalue, if query before valid ADD ... dsu is wrong
+*/
+class Solution
+{
+    private const string ADD = "ADD";
+    private const string FAIL = "FAIL";
+    private const string RESTORE = "RESTORE";
+    private const string REACH = "REACH";
+    
+    private static (int, int ) Key( int u, int v) {
+        if( u > v) (u, v) = (v, u);
+        return (u, v);
+    }
+    public static void Main2(string[] args)
+    {
+        StringBuilder sb = new();
+        FastScanner fs = new ();
+      
+        // stream is played once, i need to run Quries n times have to persiste it in order
+        int n = fs.NextInt(); // nb  of events
+        Event[] events = new Event[n];
+        List<int> queriesPos = new List<int>();
+        for(int i=0; i <n; i++)
+        {
+            string name=fs.Next();
+            events[i] =  new Event(name, fs.NextLong(), fs.NextInt(), fs.NextInt());
+            if(name == REACH)
+               queriesPos.Add(i);
+        }
+        
+        HashSet<int> seen =new ();
+        int max =int.MinValue;
+        foreach(var qp in queriesPos)      // Q 1e5 quries 
+        {   
+            //--------STATE ------------
+            Dictionary<(int, int), bool> state = new Dictionary<(int, int), bool>();
+            
+            // final order is  no more important, if I read stream in order
+            // ------------------------
+            // read until qp
+            for(int i =0; i< qp; i++)    // N 2e5 edges
+            {
+                var e= events[i];
+                if(e.Name == REACH) continue;
+                int u = e.U; int v = e.V;
+                (u, v) = Key(u, v); // normalize ! 
+                if(state.TryGetValue((u, v), out bool active) == false)
+                {
+                    if(e.Name == ADD)
+                    {
+                        state[(u, v)] = true;
+                        seen.Add(u); seen.Add(v);
+                        if(u > max) max = u;
+                        if(v > max) max = v;
+                    }
+                }
+                else {
+                    if(active && e.Name == FAIL)
+                        state[(u, v)] = false;
+                    if(active==false && e.Name == RESTORE)
+                        state[(u, v)] = true;                    
+                }
+            }
+            
+            // process one query
+            Event q = events[qp];
+         
+            if(seen.Contains(q.U) == false || seen.Contains(q.V) == false ) 
+            {
+               sb.AppendLine( "NO" ) ;    
+               continue;
+            }
+            int cnt = max;
+            // suppose u & v >= 1
+            DSU dsu =  new DSU(cnt);
+                
+            foreach(var kv in state) // scan all query seen connected pair       // N 2e5 edges
+            {
+                if(kv.Value == true)
+                {
+                   int u = kv.Key.Item1;   
+                   int v = kv.Key.Item2;  
+                   dsu.Union(u, v);
+                }                
+            }
+            bool connected = dsu.SameCluster(q.U, q.V);
+            sb.AppendLine(  connected ?  "YES" : "NO" );   
+        }
+        Console.WriteLine(sb);        
+    }
+}
+class DSU{
+    private int[] parent;
+    private int[] size;
+    public DSU(int cnt){  // 1e5 distinct nodes 
+        parent = new int[cnt+1];
+        size = new int[cnt+1];
+        for(int i=0; i < cnt+1; i++)
+        {
+            parent[i] = i;
+            size[i] = 1;
+        }
+    }
+    private int Find(int x ) // find root
+    {
+        int w = x;
+        while(parent[w] != w) {
+            w = parent[w];
+        }
+        // w is root now
+        int next=x;
+        while (parent[next] != w) {
+            /// compress all intermediate's root to w            
+            int y = parent[next];// old parent 
+            parent[next] = w;            
+            next = y;
+        }
+        return w;
+    }
+    public bool SameCluster(int x, int y)
+    {
+        return Find(x) == Find(y);
+    }
+    
+    public bool Union(int x, int y) // fail when already in the same cluster
+    {
+        int rootx = Find(x);
+        int rooty = Find(y);
+        if(rootx == rooty) return false; // in the same cluster
+        if(size[rootx] < size[rooty])
+           (rootx, rooty) = (rooty, rootx);
+        parent[rooty] = rootx;
+        size[rootx] += size[rooty];
+        return true;
+    }
+}
+
+class FastScanner{
+    private readonly byte[] data = new byte[1<<16];
+    private int len, ptr;
+    private int Read()
+    {
+        if(ptr>=len){
+            len=Console.OpenStandardInput().Read(data, 0, data.Length);
+            ptr=0;
+            if(len==0) return -1;
+        }
+        return data[ptr++];
+    }
+    public string Next(){
+        int c ;
+        do{ c=Read();} while (c<=32 && c>=0);
+        var chars= new List<char>();
+        while(c >32){
+            chars.Add((char)c); 
+            c=Read();
+        }
+        return new string(chars.ToArray());
+    }
+    public int NextInt() =>(int)NextLong();
+    public long NextLong()
+    {
+        int c; 
+        
+        do{ c=Read();} while (c<=32 && c>=0);
+        long v = 0;
+        while(c >32) {
+            v=v*10+c-'0';
+            c= Read();
+        }
+        return v;
+    }
+}
+

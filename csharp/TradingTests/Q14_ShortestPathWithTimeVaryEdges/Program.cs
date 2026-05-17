@@ -65,7 +65,7 @@ start, end, t0 ≤ st/end ≤ 10⁹, with start ≤ end
 */
 
 
-class Edge
+readonly struct Edge
 {
     public Edge(int u, int v, long cost, int start, int end)
     {
@@ -75,11 +75,11 @@ class Edge
         Start = start;
         End = end;
     }
-    public int U;
-    public int V;
-    public long Cost;
-    public int Start;
-    public int End;
+    public readonly int U;
+    public readonly int V;
+    public readonly long Cost;
+    public readonly int Start;
+    public readonly int End;
 }
 class Solution
 {
@@ -92,8 +92,9 @@ class Solution
         
         // State
         //-------------------------------------------
-        Dictionary<int, List<Edge>> allEdges = new() ; // (a, b) => (weight, start, end) ||=> you need take in valid window the smallest weight
+        List<Edge>[] allEdges = new List<Edge>[N]; // (a, b) => (weight, start, end) ||=> you need take in valid window the smallest weight
         bool[] registered = new bool[N];
+        for (int i = 0; i < N; i++) allEdges[i] = new List<Edge>();
         
         //-------------------------------------------
         
@@ -107,12 +108,7 @@ class Solution
             int wend = fs.NextInt(); // window end
             if(weight + wst > wend ) continue; // end too soon, not valid edge cost
             
-            if(allEdges.TryGetValue(u, out List<Edge>? edges) == false)
-            {
-                edges = new List<Edge>();
-                allEdges[u] = edges;
-            }
-            edges.Add(new Edge(u, v, weight, wst, wend));
+            allEdges[u].Add(new Edge(u, v, weight, wst, wend));
             registered[u] = true; registered[v] = true;
         }
         
@@ -156,10 +152,9 @@ class Solution
                 if(visited[x] == true) continue;
                 visited[x] = true;
 
-                if (allEdges.TryGetValue(x, out List<Edge> edges) == false)
-                {
+                var edges = allEdges[x];
+                if (edges.Count == 0)
                     continue;
-                }
 
                 foreach(Edge e in edges)
                 {

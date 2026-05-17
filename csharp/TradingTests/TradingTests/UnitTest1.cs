@@ -277,6 +277,23 @@ public class Tests
 // Successor: smallest key strictly > 105
         SortedSet<long> successor = prices.GetViewBetween(106, long.MaxValue);
     }
+
+    readonly struct Event
+    {
+        public readonly string Name;
+        public readonly long Time;
+        public readonly int U;
+        public readonly int V;
+
+        public Event(string name, long ts, int u, int v)
+        {
+            Name = name;
+            Time = ts;
+            U = u;
+            V = v;
+        }
+    }
+    
 }
 
 public class DescendantComparer : IComparer<int>
