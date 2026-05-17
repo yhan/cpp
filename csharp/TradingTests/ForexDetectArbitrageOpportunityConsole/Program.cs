@@ -17,6 +17,7 @@ class Solution
         the arbitrage path : ex: EUR JPY GBX EUR
 
         // IMPORTANT : the start CCY is not important, we need just a cycle
+        Bellman-Ford — Negative cycles = arbitrage detection
 */
         Edge[] fromInput = BuildEdges();
         List<Edge> edges = ReverseBuild(fromInput);
