@@ -5,6 +5,7 @@
         <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <RootNamespace>Lot2_Q1_StratDepScheduler</RootNamespace>
     </PropertyGroup>
 
 </Project>
