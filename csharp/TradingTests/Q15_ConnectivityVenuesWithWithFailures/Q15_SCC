@@ -1,0 +1,22 @@
+Q15 — Connectivity Across Venues with Failures
+Difficulty: Medium-hard | 55-65 min
+A trading firm has connections to venues through a network of gateways. Events in time order:
+
+ADD t u v — add an undirected link between nodes u and v. If link already exists, invalid (counted, no state change).
+FAIL t u v — mark link as failed. Failed links don't participate in connectivity. If link doesn't exist or already failed, invalid.
+RESTORE t u v — un-fail a previously failed link. If link doesn't exist or isn't failed, invalid.
+REACH t a b — output YES if a and b are in the same connected component using only currently-active (non-failed) links, else NO.
+
+Constraints: N ? 2×10? events, ? 10? distinct nodes, ? 2×10? edges. Up to 10? REACH queries.
+Edge cases:
+
+ADD then FAIL then RESTORE on the same edge — should be a no-op net effect
+REACH where a == b and a exists ? YES; if a never seen ? NO
+A single node never linked ? only reaches itself
+
+Hint: This is dynamic connectivity with deletions, which is much harder than incremental-only (which would be plain Union-Find). Two approaches:
+(1) Naive: maintain adjacency lists, BFS/DFS per REACH. O(V+E) per query. For N=2×10? with Q=10? REACHes, this is ~10¹? — too slow.
+(2) Offline link-cut tree or offline DSU with rollback (Bender-Farach-Colton + small-to-large): if you can read all events upfront, process FAIL/RESTORE intervals offline. Build a timeline of "edge alive intervals," then answer REACHes via DSU-on-segment-tree-of-time. O((N+Q) log² N).
+(3) Pragmatic: if FAIL/RESTORE counts are low, maintain Union-Find over currently-active edges and rebuild from scratch on each FAIL. 
+               O(K × (N+E)) where K = number of FAILs. Acceptable only if K is small.
+For Optiver, articulating "this is dynamic connectivity, which needs offline processing for an efficient solution" is the strong signal — the algorithm itself is rarely fully expected in 2 hours unless you've practiced it.
