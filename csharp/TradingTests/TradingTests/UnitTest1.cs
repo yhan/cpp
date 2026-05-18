@@ -278,6 +278,15 @@ public class Tests
         SortedSet<long> successor = prices.GetViewBetween(106, long.MaxValue);
     }
 
+    [Test]
+    public void verifyRecord()
+    {
+        Record record = new Record("dfqsfsq", 42);
+        Check.That(record.Id).IsEqualTo("dfqsfsq");
+        Check.That(record.Len).IsEqualTo(42);
+    }
+
+    record Record(string Id, int Len);
     readonly struct Event
     {
         public readonly string Name;
@@ -295,6 +304,8 @@ public class Tests
     }
     
 }
+
+
 
 public class DescendantComparer : IComparer<int>
 {
