@@ -294,6 +294,40 @@ public class Tests
         Check.That(b).ContainsExactly(1, 2, 3);
 
         StringBuilder sb = new("CYCLE ");
+        bool x = false;
+        var b1 = x && true;
+    }
+
+    [Test]
+    public void testSorted()
+    {
+        SortedSet<long> quoteIds = new SortedSet<long>();
+        quoteIds.Add(91);
+        quoteIds.Add(1);
+        quoteIds.Add(5);
+        quoteIds.Add(-2);
+        foreach (var VARIABLE in quoteIds)
+        {
+            Console.WriteLine(VARIABLE);
+        }
+
+        SortedList<long, long> quoteIdsList = new(); // is key value
+        foreach (var VARIABLE in quoteIds)
+        {
+            Console.WriteLine(VARIABLE);
+        }
+        
+    }
+
+    public class DescComparer : IComparer<(long, long)>
+    {
+        
+        public int Compare((long, long) x, (long, long) y)
+        {
+            var item1Comparison = Comparer<long>.Default.Compare(x.Item1, y.Item1);
+            if (item1Comparison != 0) return item1Comparison;
+            return Comparer<long>.Default.Compare(x.Item2, y.Item2);
+        }
     }
 
     record Record(string Id, int Len);
