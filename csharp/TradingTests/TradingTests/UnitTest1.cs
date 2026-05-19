@@ -6,31 +6,11 @@ using System.Text;
 using System.Threading;
 using NFluent;
 using NUnit.Framework.Constraints;
-using TradingSystem.Fast;
 
 namespace TradingTests;
 
 public class Tests
 {
-    [Test]
-    public void testFastDiv()
-    {
-        var fastDivider = new FastDivider(7);
-        int divide = fastDivider.Divide(10);
-        Assert.That(divide, Is.EqualTo(10/7));
-    }
-
-    [Test]
-    public void testFastMod()
-    {
-        var fastDivider = new FastDivider(7);
-        int mod = fastDivider.Modulo(22);
-        Assert.That(mod, Is.EqualTo(22 % 7));
-
-        StringBuilder sb = new StringBuilder();
-        sb.Append(-1);
-    }
-
     [Test]
     public void reversedPQ()
     {
@@ -316,7 +296,38 @@ public class Tests
         {
             Console.WriteLine(VARIABLE);
         }
-        
+    }
+
+    private static (int[] indices, long[] values) Compress(long[] prices)
+    {
+        long[] sorted = (long[])prices.Clone();
+        Array.Sort(sorted);
+
+        int w = 1;
+        for (int i = 1; i < sorted.Length; i++)
+        {
+            if (sorted[i] != sorted[i - 1])
+                sorted[w++] = sorted[i];
+        }
+
+        long[] values = new long[w + 1];
+        Array.Copy(sorted, 0, values, 1, w);
+
+        int[] indices = new int[prices.Length];
+        for (int i = 0; i < prices.Length; i++)
+        {
+            int lo = 1, hi = w;
+            while (lo < hi)
+            {
+                int mid = (lo + hi) >> 1;
+                if (values[mid] < prices[i]) lo = mid + 1;
+                else hi = mid;
+            }
+
+            indices[i] = lo;
+        }
+
+        return (indices, values);
     }
 
     public class DescComparer : IComparer<(long, long)>
