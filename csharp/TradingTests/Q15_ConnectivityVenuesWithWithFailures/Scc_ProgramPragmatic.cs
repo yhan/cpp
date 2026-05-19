@@ -73,7 +73,7 @@ class Pragmatic
         StringBuilder sb = new();
         FastScanner fs = new();
 
-        // stream is played once, i need to run Quries n times have to persiste it in order
+        // stream is played once, i need to run Queries n times have to persiste it in order
         int n = fs.NextInt(); // nb  of events
         int nbnodes = 100_000;
 

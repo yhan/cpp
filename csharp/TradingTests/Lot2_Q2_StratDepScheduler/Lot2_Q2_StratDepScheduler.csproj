@@ -8,4 +8,8 @@
         <RootNamespace>Lot2_Q1_StratDepScheduler</RootNamespace>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Tools\Tools.csproj" />
+    </ItemGroup>
+
 </Project>

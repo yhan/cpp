@@ -1,10 +1,10 @@
-﻿namespace Tools;
+namespace Tools;
 
 /// <summary>
 /// Tarjan : this impl
 /// second possibility: Kosaraju 
 /// </summary>
-public class SCCTarjan
+public class SCCTarjan0Indexed
 {
     private readonly List<int>[] _g;
     private readonly int _n;
@@ -14,7 +14,7 @@ public class SCCTarjan
     private readonly Stack<int> _sccStack = new();
     private int _counter;
 
-    public SCCTarjan(List<int>[] graph, int nodes)
+    public SCCTarjan0Indexed(List<int>[] graph, int nodes)
     {
         _g = graph;
         _n = nodes;
@@ -24,7 +24,7 @@ public class SCCTarjan
         Array.Fill(_disc, -1); // -1 means unvisited
     }
 
-    public List<List<int>> Detect()
+    public List<List<int>> DetectAll()
     {
         List<List<int>> sccs = new List<List<int>>();
 
@@ -37,6 +37,21 @@ public class SCCTarjan
 
         return sccs;
     }
+
+    private static bool IsNonTrivial(List<int> scc, List<int>[] g)
+    {
+        if (scc.Count > 1) return true;
+        // Single-node SCC: check for self-loop
+        int u = scc[0];
+        if (g[u] == null) return false;
+        foreach (int v in g[u])
+            if (v == u)
+                return true;
+        return false;
+    }
+
+    List<List<int>> All => this.DetectAll();
+    List<List<int>> NonTrivial => All.Where(s => IsNonTrivial(s, _g)).ToList();
 
     private void DfsIterative(int start, List<List<int>> sccs)
     {

@@ -286,6 +286,16 @@ public class Tests
         Check.That(record.Len).IsEqualTo(42);
     }
 
+    [Test]
+    public void cloneArray()
+    {
+        int[] a = [1, 2, 3];
+        int[] b = (int[])a.Clone();
+        Check.That(b).ContainsExactly(1, 2, 3);
+
+        StringBuilder sb = new("CYCLE ");
+    }
+
     record Record(string Id, int Len);
     readonly struct Event
     {

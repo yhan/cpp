@@ -1,12 +1,12 @@
 namespace Tools;
 
-public class NoRecurseSCCTwoPassesDfs
+public class Kosaraju_NoRecurseSCCTwoPassesDfs // __Kosaraju___
 {
     private readonly List<int>[] _g;      // original graph
     private readonly List<int>[] _gT;     // transpose (reversed edges)
     private readonly int _n;
 
-    public NoRecurseSCCTwoPassesDfs(List<int>[] graph, int nodes)
+    public Kosaraju_NoRecurseSCCTwoPassesDfs(List<int>[] graph, int nodes)
     {
         _g = graph;
         _n = nodes;

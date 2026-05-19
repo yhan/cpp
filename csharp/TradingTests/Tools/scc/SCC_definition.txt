@@ -1,0 +1,11 @@
+Because SCC is about:
+
+“Can nodes mutually reach each other?”
+
+A -> B  is not scc: from B you can t reach A
+A =>b =>c => A : is a scc and is cycle
+
+Trivial scc: single node 
+Non trivial scc: 
+ * self linked single node : A <=> A
+ * when nb of nodes > 1, at least one cycle.
