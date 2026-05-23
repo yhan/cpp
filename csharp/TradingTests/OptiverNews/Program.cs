@@ -29,6 +29,7 @@ namespace Solution
     {
         private readonly Dictionary<long, Subscription> _subs = new Dictionary<long, Subscription>();
         private readonly Dictionary<long, NewsItem> _news = new Dictionary<long, NewsItem>();
+        private readonly SortedSet<NewsItem> _sortedNewsByAge = new SortedSet<NewsItem>(new NewestOnHeadComparer());
 
         private const long MaxId = 1L << 32;
         private const long MaxInterest = 1L << 32;
@@ -68,20 +69,22 @@ namespace Solution
             return _subs.Remove(id);
         }
 
-        public bool NewsReceived(long id, double timestamp, long interest, List<string> topics)
+        public bool NewsReceived(long id, double timestamp, long interest, List<string> topics) // 
         {
             if (id < 1 || id >= MaxId) return false;
             if (interest < 1 || interest >= MaxInterest) return false;
             if (topics == null || topics.Count < 1 || topics.Count >= MaxTopicsLen) return false;
             if (_news.ContainsKey(id)) return false;
 
-            _news[id] = new NewsItem
+            var newsItem = new NewsItem
             {
                 Id = id,
                 Timestamp = timestamp,
                 Interest = interest,
                 Topics = new HashSet<string>(topics)
             };
+            _news[id] = newsItem;
+            _sortedNewsByAge.Add(newsItem); // news never removed, do not need housekeeping 
             return true;
         }
 
@@ -93,16 +96,15 @@ namespace Solution
             if (publishTimestamp < 0) return result;
 
             List<NewsItem> candidates = new List<NewsItem>();
-            foreach (NewsItem n in _news.Values)
+            
+            foreach (NewsItem news in _sortedNewsByAge)
             {
-                double age = publishTimestamp - n.Timestamp;
-                if (age >= 0 && age <= maxAge)
-                    candidates.Add(n);
+                double age = publishTimestamp - news.Timestamp;
+                if (age < 0) continue; // future news, skip
+                if (age > maxAge) break; // too old; rest are older too
+                candidates.Add(news);
             }
-
             candidates.Sort((NewsItem a, NewsItem b) => 
-                // TODO: sort can be done when news arrives; do not need to loop through all news, sort news by arrival time,
-                // newest first : Dequeue from newest => oldest, stop at where news age < (now-max_age); then sort retained news by (interest, timestamp, id) => use sortedset
             {
                 if (a.Interest != b.Interest) return b.Interest.CompareTo(a.Interest); // highest first
                 if (a.Timestamp != b.Timestamp) return a.Timestamp.CompareTo(b.Timestamp);//oldest first
@@ -141,11 +143,11 @@ namespace Solution
                 }
             }
 
-            foreach (Subscription s in _subs.Values)// TODO can be moved to subscription iteration
+            foreach (Subscription s in _subs.Values)
             {
                 int n = inCallDeliveries[s.Id];
                 for (int i = 0; i < n; i++)
-                    s.DeliveryTimestamps.Add(publishTimestamp);
+                    s.DeliveryTimestamps.Add(publishTimestamp); // TODO: (NOT correctness )as publishTimestamp is "ever increasing", this is sorted array. But we can drop all timestamps in DeliveryTimestamps if the item is < (publishTimestamp - 1s) 
             }
 
             return result;
@@ -194,6 +196,23 @@ namespace Solution
             }
 
             return lo;
+        }
+    }
+
+    internal class NewestOnHeadComparer : IComparer<NewsItem>
+    {
+        public int Compare(NewsItem? x, NewsItem? y)
+        {
+            if (ReferenceEquals(x, y)) return 0;
+            if (y is null) return 1;
+            if (x is null) return -1;
+
+            var compareTo = y.Timestamp.CompareTo(x.Timestamp);
+            if (compareTo == 0)
+            {
+                return x.Id.CompareTo(y.Id);
+            }
+            return compareTo;
         }
     }
 
