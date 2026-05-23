@@ -9,8 +9,8 @@ namespace Solution
         public long Id;
         public long MinInterest;
         public long MaxNewsPerSecond;
-        public HashSet<string> Topics = new HashSet<string>();
-        public List<double> DeliveryTimestamps = new List<double>();
+        public HashSet<string> Topics = new();
+        public readonly Queue<double> DeliveryTimestamps = new(); // last [pubtime-1s, pubtime]
     }
 
     public class NewsItem
@@ -18,18 +18,20 @@ namespace Solution
         public long Id;
         public double Timestamp;
         public long Interest;
-        public HashSet<string> Topics = new HashSet<string>();
+        public HashSet<string> Topics = new();
 
 // Subscriber ids that have ever received this news. Persists across
 // unsubscribe/resubscribe so a subscriber id never receives the same news twice.
-        public HashSet<long> DeliveredTo = new HashSet<long>();
+        public readonly HashSet<long> DeliveredTo = new();
     }
 
     public class NewsProvider
     {
-        private readonly Dictionary<long, Subscription> _subs = new Dictionary<long, Subscription>();
-        private readonly Dictionary<long, NewsItem> _news = new Dictionary<long, NewsItem>();
-        private readonly SortedSet<NewsItem> _sortedNewsByAge = new SortedSet<NewsItem>(new NewestOnHeadComparer());
+        private readonly Dictionary<long, Subscription> subs = new();
+        private readonly Dictionary<long, NewsItem> news = new();
+        private readonly SortedSet<NewsItem> sortedNewsByAge = new(new NewestOnHeadComparer());
+        private readonly Dictionary<long, int> inCallDeliveries = new();
+        private readonly Dictionary<long, int> baselineWindowCount = new();
 
         private const long MaxId = 1L << 32;
         private const long MaxInterest = 1L << 32;
@@ -44,7 +46,7 @@ namespace Solution
             if (maxNewsPerSecond < 1 || maxNewsPerSecond >= MaxNewsPerSec) return false;
             if (topics == null || topics.Count < 1 || topics.Count >= MaxTopicsLen) return false;
 
-            if (_subs.TryGetValue(id, out Subscription existing))
+            if (subs.TryGetValue(id, out Subscription existing))
             {
                 existing.MinInterest = minInterest;
                 existing.MaxNewsPerSecond = maxNewsPerSecond;
@@ -57,16 +59,16 @@ namespace Solution
                 Id = id,
                 MinInterest = minInterest,
                 MaxNewsPerSecond = maxNewsPerSecond,
-                Topics = new HashSet<string>(topics)
+                Topics = new HashSet<string>(topics) // compress for overlapping with subscription. TODO : SubsByTopic 
             };
-            _subs[id] = sub;
+            subs[id] = sub;
             return true;
         }
 
         public bool RemoveSubscription(long id)
         {
             if (id < 1 || id >= MaxId) return false;
-            return _subs.Remove(id);
+            return subs.Remove(id);
         }
 
         public bool NewsReceived(long id, double timestamp, long interest, List<string> topics) // 
@@ -74,7 +76,7 @@ namespace Solution
             if (id < 1 || id >= MaxId) return false;
             if (interest < 1 || interest >= MaxInterest) return false;
             if (topics == null || topics.Count < 1 || topics.Count >= MaxTopicsLen) return false;
-            if (_news.ContainsKey(id)) return false;
+            if (news.ContainsKey(id)) return false;
 
             var newsItem = new NewsItem
             {
@@ -83,21 +85,21 @@ namespace Solution
                 Interest = interest,
                 Topics = new HashSet<string>(topics)
             };
-            _news[id] = newsItem;
-            _sortedNewsByAge.Add(newsItem); // news never removed, do not need housekeeping 
+            news[id] = newsItem;
+            sortedNewsByAge.Add(newsItem); // news never removed, do not need housekeeping 
             return true;
         }
 
         public Dictionary<long, List<long>> Publish(double publishTimestamp, double maxAge) //  a map of subscription ids by news ids
         {
-            Dictionary<long, List<long>> result = new Dictionary<long, List<long>>();
+            Dictionary<long, List<long>> subByNewsId = new Dictionary<long, List<long>>();
 
-            if (maxAge <= 0 || maxAge >= MaxAgeLimit) return result;
-            if (publishTimestamp < 0) return result;
+            if (maxAge <= 0 || maxAge >= MaxAgeLimit) return subByNewsId;
+            if (publishTimestamp < 0) return subByNewsId;
 
             List<NewsItem> candidates = new List<NewsItem>();
             
-            foreach (NewsItem news in _sortedNewsByAge)
+            foreach (NewsItem news in sortedNewsByAge)
             {
                 double age = publishTimestamp - news.Timestamp;
                 if (age < 0) continue; // future news, skip
@@ -111,18 +113,22 @@ namespace Solution
                 return b.Id.CompareTo(a.Id); // highest first
             });
 
-            Dictionary<long, int> inCallDeliveries = new Dictionary<long, int>(_subs.Count);
-            Dictionary<long, int> baselineWindowCount = new Dictionary<long, int>(_subs.Count);
-            foreach (Subscription s in _subs.Values)
+            inCallDeliveries.Clear();
+            baselineWindowCount.Clear();
+            foreach (Subscription s in subs.Values)
             {
-                baselineWindowCount[s.Id] = CountInWindow(
-                    s.DeliveryTimestamps, publishTimestamp - 1.0, publishTimestamp);
+                while (s.DeliveryTimestamps.TryPeek(out double ts) 
+                    && ts < (publishTimestamp - 1d))
+                {
+                    s.DeliveryTimestamps.Dequeue(); // drop all pub_ts recorded older than now-1s
+                }
+                baselineWindowCount[s.Id] = s.DeliveryTimestamps.Count;
                 inCallDeliveries[s.Id] = 0;
             }
 
             foreach (NewsItem news in candidates)
-            {
-                foreach (Subscription sub in _subs.Values)
+            { // TODO select subscriptions: news=> list of topic => Map<topic, subscription>
+                foreach (Subscription sub in subs.Values)
                 {
                     if (news.DeliveredTo.Contains(sub.Id)) continue;
                     if (news.Interest < sub.MinInterest) continue;
@@ -131,26 +137,20 @@ namespace Solution
                         continue;
 
                     news.DeliveredTo.Add(sub.Id);
+                    sub.DeliveryTimestamps.Enqueue(publishTimestamp);
                     inCallDeliveries[sub.Id]++;
 
-                    if (!result.TryGetValue(news.Id, out List<long> list))
+                    if (!subByNewsId.TryGetValue(news.Id, out List<long>? subs))
                     {
-                        list = new List<long>();
-                        result[news.Id] = list; // require news id => list of subscription 
+                        subs = new List<long>();
+                        subByNewsId[news.Id] = subs; // require news id => list of subscription 
                     }
 
-                    list.Add(sub.Id);
+                    subs.Add(sub.Id);
                 }
             }
 
-            foreach (Subscription s in _subs.Values)
-            {
-                int n = inCallDeliveries[s.Id];
-                for (int i = 0; i < n; i++)
-                    s.DeliveryTimestamps.Add(publishTimestamp); // TODO: (NOT correctness )as publishTimestamp is "ever increasing", this is sorted array. But we can drop all timestamps in DeliveryTimestamps if the item is < (publishTimestamp - 1s) 
-            }
-
-            return result;
+            return subByNewsId;
         }
 
         private static bool HasTopicOverlap(HashSet<string> a, HashSet<string> b)
@@ -161,41 +161,6 @@ namespace Solution
                 if (big.Contains(t))
                     return true;
             return false;
-        }
-
-        private static int CountInWindow(List<double> sorted, double lo, double hi)
-        {
-            int left = LowerBound(sorted, lo);
-            int right = UpperBound(sorted, hi);
-            return right - left;
-        }
-
-        private static int LowerBound(List<double> list, double target)
-        {
-            int lo = 0;
-            int hi = list.Count;
-            while (lo < hi)
-            {
-                int mid = (lo + hi) >> 1;
-                if (list[mid] < target) lo = mid + 1;
-                else hi = mid;
-            }
-
-            return lo;
-        }
-
-        private static int UpperBound(List<double> list, double target)
-        {
-            int lo = 0;
-            int hi = list.Count;
-            while (lo < hi)
-            {
-                int mid = (lo + hi) >> 1;
-                if (list[mid] <= target) lo = mid + 1;
-                else hi = mid;
-            }
-
-            return lo;
         }
     }
 

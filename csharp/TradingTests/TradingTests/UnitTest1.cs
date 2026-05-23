@@ -12,6 +12,11 @@ namespace TradingTests;
 public class Tests
 {
     [Test]
+    public void deque()
+    {
+        //new Deque<double>
+    }
+    [Test]
     public void reversedPQ()
     {
         // a priority queue priority is negative // OR sorted desc
