@@ -1,0 +1,36 @@
+1. news sorted at arrival, publish time early break
+2. bug fix: future news ( comparing to publish time) should not be published
+
+Trade off for design
+
+lg(n) + n' + n*lg(n')
+1. at news arrival : sort by news age
+   + at publish: iterate then break early + sort by 3 keys
+   
+lg(n) + n 
+2. at news arrival : sort by 3 keys 
+   + publish: iterate over all 
+   
+when max_age limit is small: n' + n*lg(n') << n
+
+
+TODO
+1. change Interate (news, subscription) by Iterate (news, select subscription, iterate subscription)
+2. Rate limiting:
+     per sub: CountInWindow(sorted_times, pubtime-1s, pubtime)
+     => you need just a COUNT: so Queue<ts> enqueue when add, 
+      to have the window COUNT: COUNT(queue) - RECOUNT(dequeue to publish-1s)
+      
+   old impl:  (issue : MEMORY GROWS)
+   get per sub DeliveryTimestamps grows, each time per news/sub decided to publish, grow the list
+   then at publish time : find the COUNT between [now-1s, now]   2*Log(k)  (k is the per sub timestamps COUNT)
+   
+   new impl:
+   Keep a queue<ts> on subscription
+   each time decide to publish news on sub, enqueue, 
+   at publish time : drop ts where ts older than now-1s, COUNT the queue is baseline
+   
+3. Publish optim: 
+   i converted O(c*s) to O(c*topics * subset_subscriptions) 
+   is this really a optimization ? only if S >> topics * subset_subscriptions
+   if one news covers all topics then this is not an optim; which should not be the case in the real world

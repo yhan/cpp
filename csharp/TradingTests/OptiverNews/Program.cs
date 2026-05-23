@@ -27,17 +27,18 @@ namespace Solution
 
     public class NewsProvider
     {
-        private readonly Dictionary<long, Subscription> subs = new();
-        private readonly Dictionary<long, NewsItem> news = new();
-        private readonly SortedSet<NewsItem> sortedNewsByAge = new(new NewestOnHeadComparer());
-        private readonly Dictionary<long, int> inCallDeliveries = new();
-        private readonly Dictionary<long, int> baselineWindowCount = new();
-
         private const long MaxId = 1L << 32;
         private const long MaxInterest = 1L << 32;
         private const long MaxNewsPerSec = 1L << 12;
         private const int MaxTopicsLen = 1 << 10;
         private const double MaxAgeLimit = 1L << 32;
+
+        private readonly Dictionary<long, Subscription> allSubs = new();
+        private readonly Dictionary<long, NewsItem> allNews = new();
+        private readonly SortedSet<NewsItem> sortedNewsByAge = new(new NewestOnHeadComparer());
+        private readonly Dictionary<long, int> inCallDeliveries = new();
+        private readonly Dictionary<long, int> baselineWindowCount = new();
+        private readonly Dictionary<string, HashSet<long>> topicToSubscriptionsMap = new();
 
         public bool AddSubscription(long id, long minInterest, long maxNewsPerSecond, List<string> topics)
         {
@@ -46,29 +47,61 @@ namespace Solution
             if (maxNewsPerSecond < 1 || maxNewsPerSecond >= MaxNewsPerSec) return false;
             if (topics == null || topics.Count < 1 || topics.Count >= MaxTopicsLen) return false;
 
-            if (subs.TryGetValue(id, out Subscription existing))
+            HashSet<string> uniqTopics = new HashSet<string>(topics);
+            foreach (string topic in uniqTopics)
             {
+                if (topicToSubscriptionsMap.TryGetValue(topic, out HashSet<long>? subs) == false)
+                {
+                    subs = new HashSet<long>();
+                    topicToSubscriptionsMap[topic] = subs;
+                }
+            }
+            
+            if (allSubs.TryGetValue(id, out Subscription? existing))
+            {
+                RemoveOldTopicSubAssociation(existing);
                 existing.MinInterest = minInterest;
                 existing.MaxNewsPerSecond = maxNewsPerSecond;
-                existing.Topics = new HashSet<string>(topics);
-                return true;
+                existing.Topics = uniqTopics;
+            }
+            else
+            {
+                Subscription sub = new Subscription
+                {
+                    Id = id,
+                    MinInterest = minInterest,
+                    MaxNewsPerSecond = maxNewsPerSecond,
+                    Topics = uniqTopics
+                };
+                allSubs[id] = sub;
             }
 
-            Subscription sub = new Subscription
+            foreach (var topic in topics)
             {
-                Id = id,
-                MinInterest = minInterest,
-                MaxNewsPerSecond = maxNewsPerSecond,
-                Topics = new HashSet<string>(topics) // compress for overlapping with subscription. TODO : SubsByTopic 
-            };
-            subs[id] = sub;
+                topicToSubscriptionsMap[topic].Add(id);
+            }
             return true;
         }
 
-        public bool RemoveSubscription(long id)
+        public bool RemoveSubscription(long subId)
         {
-            if (id < 1 || id >= MaxId) return false;
-            return subs.Remove(id);
+            if (subId < 1 || subId >= MaxId) return false;
+            if (allSubs.TryGetValue(subId, out var existing))
+            {
+                RemoveOldTopicSubAssociation(existing);
+                allSubs.Remove(subId);
+                return true;
+            }
+
+            return false;
+        }
+
+        private void RemoveOldTopicSubAssociation(Subscription existing)
+        {
+            foreach (string topic in existing.Topics) // updating subscription: old topic=> sub association should be removed first
+            {
+                topicToSubscriptionsMap[topic].Remove(existing.Id);
+            }
         }
 
         public bool NewsReceived(long id, double timestamp, long interest, List<string> topics) // 
@@ -76,7 +109,7 @@ namespace Solution
             if (id < 1 || id >= MaxId) return false;
             if (interest < 1 || interest >= MaxInterest) return false;
             if (topics == null || topics.Count < 1 || topics.Count >= MaxTopicsLen) return false;
-            if (news.ContainsKey(id)) return false;
+            if (allNews.ContainsKey(id)) return false;
 
             var newsItem = new NewsItem
             {
@@ -85,7 +118,7 @@ namespace Solution
                 Interest = interest,
                 Topics = new HashSet<string>(topics)
             };
-            news[id] = newsItem;
+            allNews[id] = newsItem;
             sortedNewsByAge.Add(newsItem); // news never removed, do not need housekeeping 
             return true;
         }
@@ -115,7 +148,7 @@ namespace Solution
 
             inCallDeliveries.Clear();
             baselineWindowCount.Clear();
-            foreach (Subscription s in subs.Values)
+            foreach (Subscription s in allSubs.Values)
             {
                 while (s.DeliveryTimestamps.TryPeek(out double ts) 
                     && ts < (publishTimestamp - 1d))
@@ -127,26 +160,35 @@ namespace Solution
             }
 
             foreach (NewsItem news in candidates)
-            { // TODO select subscriptions: news=> list of topic => Map<topic, subscription>
-                foreach (Subscription sub in subs.Values)
+            {
+                foreach (var topic in news.Topics) // n topics maps to the same sub
                 {
-                    if (news.DeliveredTo.Contains(sub.Id)) continue;
-                    if (news.Interest < sub.MinInterest) continue;
-                    if (!HasTopicOverlap(news.Topics, sub.Topics)) continue;
-                    if (baselineWindowCount[sub.Id] + inCallDeliveries[sub.Id] >= sub.MaxNewsPerSecond)
-                        continue;
-
-                    news.DeliveredTo.Add(sub.Id);
-                    sub.DeliveryTimestamps.Enqueue(publishTimestamp);
-                    inCallDeliveries[sub.Id]++;
-
-                    if (!subByNewsId.TryGetValue(news.Id, out List<long>? subs))
+                    HashSet<long> subscriptions = topicToSubscriptionsMap[topic];
+                    foreach (long subId in subscriptions)
                     {
-                        subs = new List<long>();
-                        subByNewsId[news.Id] = subs; // require news id => list of subscription 
-                    }
+                        Subscription sub = allSubs[subId];
+                        if (news.DeliveredTo.Contains(sub.Id))
+                        {
+                            // avoid the same news delivering to the same subscription over time
+                            continue;
+                        }
+                        if (news.Interest < sub.MinInterest) continue;
+                        if (!HasTopicOverlap(news.Topics, sub.Topics)) continue;
+                        if (baselineWindowCount[sub.Id] + inCallDeliveries[sub.Id] >= sub.MaxNewsPerSecond)
+                            continue;
 
-                    subs.Add(sub.Id);
+                        news.DeliveredTo.Add(sub.Id);
+                        sub.DeliveryTimestamps.Enqueue(publishTimestamp);
+                        inCallDeliveries[sub.Id]++;
+
+                        if (!subByNewsId.TryGetValue(news.Id, out List<long>? subs))
+                        {
+                            subs = new List<long>();
+                            subByNewsId[news.Id] = subs; // require news id => list of subscription 
+                        }
+
+                        subs.Add(sub.Id);
+                    }
                 }
             }
 
