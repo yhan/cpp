@@ -11,6 +11,15 @@ namespace Solution
         public long MaxNewsPerSecond;
         public HashSet<string> Topics = new();
         public readonly Queue<double> DeliveryTimestamps = new(); // last [pubtime-1s, pubtime]
+
+        public int InCallDeliveriesCount = 0;
+        public int  BaselineWindowCount = 0;
+
+        public void ClearTransientState()
+        {
+            InCallDeliveriesCount = 0;
+            BaselineWindowCount = 0;
+        }
     }
 
     public class NewsItem
@@ -36,8 +45,6 @@ namespace Solution
         private readonly Dictionary<long, Subscription> allSubs = new();
         private readonly Dictionary<long, NewsItem> allNews = new();
         private readonly SortedSet<NewsItem> sortedNewsByAge = new(new NewestOnHeadComparer());
-        private readonly Dictionary<long, int> inCallDeliveries = new();
-        private readonly Dictionary<long, int> baselineWindowCount = new();
         private readonly Dictionary<string, HashSet<long>> topicToSubscriptionsMap = new();
 
         public bool AddSubscription(long id, long minInterest, long maxNewsPerSecond, List<string> topics)
@@ -76,7 +83,7 @@ namespace Solution
                 allSubs[id] = sub;
             }
 
-            foreach (var topic in topics)
+            foreach (var topic in uniqTopics)
             {
                 topicToSubscriptionsMap[topic].Add(id);
             }
@@ -146,17 +153,17 @@ namespace Solution
                 return b.Id.CompareTo(a.Id); // highest first
             });
 
-            inCallDeliveries.Clear();
-            baselineWindowCount.Clear();
+            
             foreach (Subscription s in allSubs.Values)
             {
+                s.ClearTransientState();
                 while (s.DeliveryTimestamps.TryPeek(out double ts) 
                     && ts < (publishTimestamp - 1d))
                 {
                     s.DeliveryTimestamps.Dequeue(); // drop all pub_ts recorded older than now-1s
                 }
-                baselineWindowCount[s.Id] = s.DeliveryTimestamps.Count;
-                inCallDeliveries[s.Id] = 0;
+                s.BaselineWindowCount = s.DeliveryTimestamps.Count;
+                s.InCallDeliveriesCount = 0;
             }
 
             foreach (NewsItem news in candidates)
@@ -173,13 +180,12 @@ namespace Solution
                             continue;
                         }
                         if (news.Interest < sub.MinInterest) continue;
-                        if (!HasTopicOverlap(news.Topics, sub.Topics)) continue;
-                        if (baselineWindowCount[sub.Id] + inCallDeliveries[sub.Id] >= sub.MaxNewsPerSecond)
+                        if (sub.BaselineWindowCount + sub.InCallDeliveriesCount >= sub.MaxNewsPerSecond)
                             continue;
 
                         news.DeliveredTo.Add(sub.Id);
                         sub.DeliveryTimestamps.Enqueue(publishTimestamp);
-                        inCallDeliveries[sub.Id]++;
+                        sub.InCallDeliveriesCount++;
 
                         if (!subByNewsId.TryGetValue(news.Id, out List<long>? subs))
                         {
@@ -193,16 +199,6 @@ namespace Solution
             }
 
             return subByNewsId;
-        }
-
-        private static bool HasTopicOverlap(HashSet<string> a, HashSet<string> b)
-        {
-            HashSet<string> small = a.Count <= b.Count ? a : b;
-            HashSet<string> big = a.Count <= b.Count ? b : a;
-            foreach (string t in small)
-                if (big.Contains(t))
-                    return true;
-            return false;
         }
     }
 

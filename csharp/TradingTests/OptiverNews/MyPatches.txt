@@ -14,8 +14,8 @@ lg(n) + n
 when max_age limit is small: n' + n*lg(n') << n
 
 
-TODO
-1. change Interate (news, subscription) by Iterate (news, select subscription, iterate subscription)
+Optimizations:
+1. change Iterate (news, subscription) by Iterate (news, select subscription, iterate subscription)
 2. Rate limiting:
      per sub: CountInWindow(sorted_times, pubtime-1s, pubtime)
      => you need just a COUNT: so Queue<ts> enqueue when add, 
