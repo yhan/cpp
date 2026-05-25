@@ -45,6 +45,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lot2_Q1_QuoteLifetimeAudito
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OptiverNews", "OptiverNews\OptiverNews.csproj", "{ED15800B-DD82-48BB-B22E-C084FC292282}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradingSystem", "TradingSystem\TradingSystem.csproj", "{6539E042-1A8B-49ED-8112-BC1D8E54D10F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmark", "Benchmark\Benchmark.csproj", "{487B84E4-BFC9-43B2-B0BF-B07295E6442F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -123,6 +127,14 @@ Global
 		{ED15800B-DD82-48BB-B22E-C084FC292282}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ED15800B-DD82-48BB-B22E-C084FC292282}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ED15800B-DD82-48BB-B22E-C084FC292282}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6539E042-1A8B-49ED-8112-BC1D8E54D10F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6539E042-1A8B-49ED-8112-BC1D8E54D10F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6539E042-1A8B-49ED-8112-BC1D8E54D10F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6539E042-1A8B-49ED-8112-BC1D8E54D10F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{487B84E4-BFC9-43B2-B0BF-B07295E6442F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{487B84E4-BFC9-43B2-B0BF-B07295E6442F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{487B84E4-BFC9-43B2-B0BF-B07295E6442F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{487B84E4-BFC9-43B2-B0BF-B07295E6442F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{A8B6AF49-0AA5-4D10-9DAF-DFD3BE039AC5} = {2B21AC70-09F9-4CF4-A3FB-153B61933333}

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>DividerBenchmark-20260421-215011</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet v0.15.8, Windows 11 (10.0.26200.8246/25H2/2025Update/HudsonValley2)
+Intel Core i9-10885H CPU 2.40GHz, 1 CPU, 16 logical and 8 physical cores
+.NET SDK 10.0.201
+  [Host]     : .NET 10.0.5 (10.0.5, 10.0.526.15411), X64 RyuJIT x86-64-v3
+  DefaultJob : .NET 10.0.5 (10.0.5, 10.0.526.15411), X64 RyuJIT x86-64-v3
+</code></pre>
+<pre><code></code></pre>
+
+<table>
+<thead><tr><th>Method</th><th>Count</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Ratio</th><th>RatioSD</th><th>Code Size</th><th>Allocated</th><th>Alloc Ratio</th>
+</tr>
+</thead><tbody><tr><td>NativeDivide</td><td>1000</td><td>797.6 ns</td><td>9.72 ns</td><td>7.59 ns</td><td>1.00</td><td>0.01</td><td>62 B</td><td>-</td><td>NA</td>
+</tr><tr><td>FastDivide</td><td>1000</td><td>484.8 ns</td><td>7.42 ns</td><td>6.94 ns</td><td>0.61</td><td>0.01</td><td>61 B</td><td>-</td><td>NA</td>
+</tr><tr><td>NativeModulo</td><td>1000</td><td>1,013.0 ns</td><td>19.50 ns</td><td>19.15 ns</td><td>1.27</td><td>0.03</td><td>74 B</td><td>-</td><td>NA</td>
+</tr><tr><td>FastModulo</td><td>1000</td><td>690.2 ns</td><td>10.46 ns</td><td>16.59 ns</td><td>0.87</td><td>0.02</td><td>60 B</td><td>-</td><td>NA</td>
+</tr></tbody></table>
+</body>
+</html>
