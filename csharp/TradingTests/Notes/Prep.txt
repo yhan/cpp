@@ -1,0 +1,212 @@
+Vu ton profil (19 ans d'expérience, algo trading, optimisation .NET, systèmes temps réel), si tu passes un entretien C# Quant Developer / Software Engineer chez Qube Research & Technologies, je m'attendrais beaucoup moins à du LeetCode pur qu'à des questions sur :
+
+1. C# / .NET internals (très probable)
+
+Ils adorent les gens capables d'expliquer pourquoi le runtime fait quelque chose.
+
+Exemples :
+
+Différence entre struct et class
+Boxing / unboxing
+Span<T> et pourquoi il réduit les allocations
+ref, in, out
+readonly struct
+stackalloc
+Pourquoi une lambda alloue parfois
+Closure capture
+Task vs Thread
+lock vs Interlocked
+ConcurrentDictionary internals
+volatile
+Memory barriers
+False sharing
+NUMA
+Async/await state machine
+
+Question typique :
+
+You have a service processing 500k messages/sec. GC pauses appear. How would you investigate and reduce them?
+
+Là tu peux dérouler PerfView, heap churn, LOH, allocations cachées, delegates, LINQ, etc.
+
+2. Data structures & algorithms (certain)
+
+Souvent niveau LeetCode Medium.
+
+Questions typiques :
+
+LRU Cache
+Top K elements
+Merge intervals
+Order book aggregation
+Sliding window
+Graph traversal
+Dependency graph
+SCC
+Heap/Priority Queue
+
+Vu ce qu'on a déjà discuté :
+
+Binary search
+Heap
+Tarjan SCC
+Kahn
+Bellman-Ford
+
+tu es déjà largement au niveau attendu.
+
+3. Concurrency (très fréquent)
+
+Pour un profil trading :
+
+Design a thread-safe queue.
+
+Puis :
+
+Can we make it lock free?
+
+Puis :
+
+Multiple producers?
+Multiple consumers?
+ABA problem?
+
+Ils aiment aussi :
+
+SPSC
+MPSC
+Ring buffer
+Cache lines
+False sharing
+Atomic operations
+
+Vu tes questions récentes sur SPSC queues, TLB et NUMA, tu es exactement dans la bonne direction.
+
+4. Performance engineering (très probable pour toi)
+
+Vu ton CV, ils vont creuser.
+
+Par exemple :
+
+Why is Dictionary lookup O(1) but still slow sometimes?
+
+ou
+
+Why did moving a thread to another core increase latency?
+
+ou
+
+Explain cache locality.
+
+ou
+
+Why can LINQ become expensive?
+
+ou
+
+Explain the difference between latency and throughput.
+
+5. Trading system design
+
+Comme tu viens d'Algo Trading chez SGCIB, ils vont probablement passer du temps ici.
+
+Exemples :
+
+Design a market data handler.
+
+Design an order manager.
+
+Design a VWAP engine.
+
+How would you build a real-time PnL service?
+
+How would you process 10 million market updates per second?
+
+L'objectif n'est pas forcément la bonne réponse mais de voir comment tu raisonnes.
+
+6. Questions que je poserais personnellement en voyant ton CV
+
+Si j'étais interviewer Qube :
+
+Tu mentionnes avoir supprimé des NUMA storms. Explique précisément le problème.
+Comment as-tu mesuré le gain ?
+Quelle était la source principale des allocations ?
+Pourquoi avoir choisi .NET plutôt que C++ ?
+Comment fonctionne le GC Server ?
+Quelle est la différence entre Gen0, Gen1 et Gen2 ?
+Pourquoi une allocation peut-elle coûter même sans GC ?
+Comment concevoir un VWAP distribué à 1 million de deals/seconde ?
+Comment détecter une contention de lock en production ?
+Comment benchmarker correctement une optimisation ?
+Ce que je préparerais à ta place
+
+Priorité 1 :
+
+GC internals
+Concurrency
+Memory model C#
+Lock-free structures
+Cache / NUMA
+
+Priorité 2 :
+
+LeetCode Medium
+Graphs
+Heap
+Binary Search
+DP basique
+
+Priorité 3 :
+
+Order book
+Market data
+OMS
+VWAP
+Execution algos
+
+Avec ton parcours, je pense qu'ils seront beaucoup plus intéressés par :
+
+"Explique-moi comment tu as réduit une latence de 30 µs à 5 µs"
+
+que par
+
+"Inverse une linked list".
+
+Les questions de runtime, mémoire et performance sont probablement celles où tu peux vraiment te différencier.
+
+
+
+# Top K elements
+---------------------
+Top K Elements - interview problem breakdown
+The problem usually means: given an array of size n, return the k largest (or smallest) elements.
+Common variants: - Top K largest numbers
+- Top K frequent elements
+- Top K in a stream (online)
+What is being tested
+- Choosing the right data structure
+- Time vs memory tradeoff
+- Handling edge cases cleanly
+- Understanding when full sorting is wasteful
+Main approaches
+- Full sort: O(n log n), simple, often not optimal when k << n
+- Min heap of size k: O(n log k), standard interview answer
+- Quickselect: average O(n), worst case O(n^2), good for one-shot selection
+- Bucket/counting methods: near O(n) when value/frequency range is bounded
+Typical pitfalls
+- Forgetting edge cases: k = 0, k > n, empty input
+- Wrong heap type (min vs max)
+- Returning unsorted top-k when sorted output is required
+- Not defining behavior for duplicates
+- Using O(n log n) sort when interviewer expects better
+- For Top K frequent: forgetting tie handling rules
+- For streaming: recomputing from scratch each update
+C# angle (.NET)
+- Use PriorityQueue<TElement, TPriority> for heap solution
+- For high throughput, minimize allocations and avoid unnecessary LINQ in hot paths
+- For stream scenarios, combine Dictionary<T, int> + bounded heap
+Quick rule of thumb
+If k is much smaller than n, heap is usually the safest interview choice.
+If one-time query and no ordering requirement, quickselect is often fastest in practice.
+
+!!!! quickselect !!!!!
