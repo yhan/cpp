@@ -210,3 +210,30 @@ If k is much smaller than n, heap is usually the safest interview choice.
 If one-time query and no ordering requirement, quickselect is often fastest in practice.
 
 !!!! quickselect !!!!!
+
+
+Partition
+--
+partition(arr, lo, hi):
+    pivot = arr[hi]              // choose last element as pivot
+    i = lo                       // boundary: arr[lo..i-1] are < pivot
+    for j = lo to hi - 1:
+        if arr[j] < pivot:
+            swap(arr[i], arr[j])
+            i = i + 1
+    swap(arr[i], arr[hi])        // put pivot into its final place
+    return i                     // pivot's final sorted index
+    
+Quickselect 
+--
+
+quickselect(arr, lo, hi, k):
+    while lo < hi:
+        p = partition(arr, lo, hi)
+        if p == k:
+            return arr[k]        // found the k-th smallest
+        else if p < k:
+            lo = p + 1           // target is in the right part
+        else:
+            hi = p - 1           // target is in the left part
+    return arr[lo]               // single element left

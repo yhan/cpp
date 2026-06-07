@@ -31,6 +31,13 @@ public class SearchTests
         Check.That(leftMost).IsEqualTo(7);
     }
 
+    [Test]
+    public void dico()
+    {
+        var dictionary = new Dictionary<int, int>();
+        dictionary.Remove(12);
+    }
+
     private int FindLeftMost(int target, List<int> arr)
     {
         int l = 0, r = arr.Count - 1;
