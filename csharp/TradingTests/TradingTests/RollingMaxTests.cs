@@ -9,7 +9,7 @@ public class RollingMaxTests
     /// <param name="arr"></param>
     /// <param name="k"></param>
     /// <returns></returns>
-    public static int[] RollingMax(int[] arr, int k)
+    public static int[] RollingMax2(int[] arr, int k)
     {
         int resCount = arr.Length - k + 1;
         int[] res = new int[resCount];
@@ -31,13 +31,40 @@ public class RollingMaxTests
                 head++;
             }
 
-            deque[i] = head;
+            deque[tail++] = i;
             if (i - head >= k - 1)
             {
-                res[i - k + 1] = arr[deque[]];
+                res[i - k + 1] = arr[deque[head]];
             }
         }
 
         return res;
+    }
+
+    public static int[] RollingMax(int[] a, int k)
+    {
+        int n = a.Length;
+        int[] dq = new int[n]; // ring not even needed; n is a safe upper bound
+        int head = 0, tail = 0; // [head, tail) holds indices, values decreasing
+        int[] result = new int[n - k + 1];
+        int r = 0;
+
+        for (int i = 0; i < n; i++)
+        {
+            // drop indices outside the window
+            if (head < tail && dq[head] <= i - k)
+                head++;
+
+            // drop smaller values from the back
+            while (head < tail && a[dq[tail - 1]] <= a[i])
+                tail--;
+
+            dq[tail++] = i;
+
+            if (i >= k - 1)
+                result[r++] = a[dq[head]];
+        }
+
+        return result;
     }
 }
